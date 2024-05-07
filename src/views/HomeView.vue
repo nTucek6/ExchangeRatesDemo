@@ -25,6 +25,9 @@ const selectedCurrency = ref<string[]>([])
 const dateFrom = ref(dateFormat.getFiveDaysAgo())
 const dateTo = ref(dateFormat.getToday())
 
+const fromMaxDate = ref(dateFormat.getYesterday())
+const toMinDate = ref(dateFormat.getDayAfterFromDate(dateFrom.value))
+
 const overview = ref<Overview[]>([])
 
 onMounted(async () => {
@@ -55,7 +58,17 @@ async function handleDeselectChange(event: any) {
   removeOverviewData(event)
 }
 
-function handleDateFrom() {
+function handleDateFrom(){
+  toMinDate.value = dateFormat.getDayAfterFromDate(dateFrom.value)
+  handleDate()
+}
+
+function handleDateTo(){
+  fromMaxDate.value = dateFormat.getDayBeforeFromDate(dateTo.value)
+  handleDate()
+}
+
+function handleDate() {
   chartStore.removeAllChartData()
   overview.value = []
 
@@ -65,16 +78,6 @@ function handleDateFrom() {
   })
 }
 
-function handleDateTo() {
-  console.log(dateFrom.value)
-  chartStore.removeAllChartData()
-  overview.value = []
-
-  selectedCurrency.value.forEach(async (c) => {
-    await getHistoryData(c)
-    newChartData(c)
-  })
-}
 
 function addOverviewData(newData: any, isoCode: string) {
   const values = newData.map((x: { currencyValue: any }) => x.currencyValue)
@@ -131,7 +134,7 @@ function newChartData(newValue: string) {
         <label>Date from:</label>
         <VueDatePicker
           v-model="dateFrom"
-          :max-date="dateFormat.getYesterday()"
+          :max-date="fromMaxDate"
           :format="dateFormat.formatVueDate"
           @update:model-value="handleDateFrom"
         />
@@ -152,6 +155,7 @@ function newChartData(newValue: string) {
         <VueDatePicker
           v-model="dateTo"
           :max-date="dateFormat.getToday()"
+          :min-date="toMinDate"
           :format="dateFormat.formatVueDate"
           @update:model-value="handleDateTo"
         />
