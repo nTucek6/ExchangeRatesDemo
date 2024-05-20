@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useApiStore } from '@/stores/api'
 import { useDateFormatStore } from '@/stores/date-actions'
 import { useCalculateStore } from '@/stores/calculate'
 import type { Overview } from '@/interface/overview.model'
 import { useChartStore } from '@/stores/chart'
+import { useSchedulerStore } from '@/stores/scheduler'
 
 const api = useApiStore()
 
@@ -14,9 +15,13 @@ const calculateStore = useCalculateStore()
 
 const chartStore = useChartStore()
 
+const scheduler = useSchedulerStore()
+
 const currencyOptions = computed(() => api.currency)
 
 const data = computed(() => api.historyPeriod)
+
+const runAtMidnight = computed(()=> scheduler.runAtMidnightCalled)
 
 const chart = ref()
 
@@ -26,6 +31,7 @@ const dateFrom = ref(dateFormat.getFiveDaysAgo())
 const dateTo = ref(dateFormat.getToday())
 
 const fromMaxDate = ref(dateFormat.getYesterday())
+const toMaxDate = ref(dateFormat.getToday())
 const toMinDate = ref(dateFormat.getDayAfterFromDate(dateFrom.value))
 
 const overview = ref<Overview[]>([])
@@ -39,6 +45,18 @@ onMounted(async () => {
     selectedCurrency.value.push('EUR')
     handleSelectChange(selectedCurrency.value[0])
   }
+})
+
+watch(runAtMidnight,(value)=>{
+
+  toMaxDate.value = dateFormat.getToday()
+
+  if(dateTo.value == dateFormat.getYesterday())
+  {
+    dateTo.value = dateFormat.getToday()
+    fromMaxDate.value = dateFormat.getDayBeforeFromDate(dateTo.value)
+  }
+  //toMinDate.value = dateFormat.getDayAfterFromDate(dateFrom.value)
 })
 
 async function getHistoryData(value: string) {
@@ -154,7 +172,7 @@ function newChartData(newValue: string) {
         <label>Date to:</label>
         <VueDatePicker
           v-model="dateTo"
-          :max-date="dateFormat.getToday()"
+          :max-date="toMaxDate"
           :min-date="toMinDate"
           :format="dateFormat.formatVueDate"
           @update:model-value="handleDateTo"

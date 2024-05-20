@@ -1,5 +1,18 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { onMounted, onUnmounted } from 'vue';
+import { useSchedulerStore } from './stores/scheduler';
+
+const scheduler = useSchedulerStore()
+
+onMounted(()=>{
+  scheduler.scheduleMidnightTask()
+})
+
+onUnmounted(()=>{
+  scheduler.clearScheduledTask()
+})
+
 </script>
 
 <template>

@@ -36,17 +36,27 @@ export const useDateFormatStore = defineStore('dateFormat', () => {
     return `${day}.${month}.${year}.`
   }
 
-  function getDayAfterFromDate(date:Date):Date{
+  function getDayAfterFromDate(date: Date): Date {
     const tomorrow = new Date(date.getTime())
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(tomorrow.getDate() + 1)
     return tomorrow
   }
 
-  function getDayBeforeFromDate(date:Date):Date{
+  function getDayBeforeFromDate(date: Date): Date {
     const yesterday = new Date(date.getTime())
-    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setDate(yesterday.getDate() - 1)
     return yesterday
   }
 
-  return { formatDate, getToday, getPreviousMonth, getFiveDaysAgo, getYesterday, formatVueDate, getDayAfterFromDate, getDayBeforeFromDate }
+
+  return {
+    formatDate,
+    getToday,
+    getPreviousMonth,
+    getFiveDaysAgo,
+    getYesterday,
+    formatVueDate,
+    getDayAfterFromDate,
+    getDayBeforeFromDate,
+  }
 })
